@@ -22,4 +22,75 @@
  * IN THE SOFTWARE.
  */
 
+#include <QApplication>
+#include <QDesktopServices>
+#include <QDesktopWidget>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QRect>
+#include <QStyle>
+#include <QUrl>
+
 #include "mainwindow.h"
+
+MainWindow::MainWindow()
+    : mRender(nullptr)
+{
+    initMenu();
+
+    // Resize and center the window
+    setGeometry(0, 0, 600, 400);
+    setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            size(),
+            QApplication::desktop()->availableGeometry()
+        )
+    );
+}
+
+void MainWindow::initMenu()
+{
+    QMenuBar *bar = new QMenuBar(this);
+
+    // Create the file menu
+    QMenu *file = new QMenu(tr("&File"), bar);
+    file->addAction(tr("&Open..."), this, SLOT(onOpen()));
+    mRender = file->addAction(tr("&Render..."), this, SLOT(onRender()));
+    mRender->setEnabled(false);
+    file->addSeparator();
+    file->addAction(tr("&Quit"), this, SLOT(close()));
+
+    // Create the help menu
+    QMenu *help = new QMenu(tr("&Help"), bar);
+    help->addAction(tr("&Online Documentation"), this, SLOT(onOnlineDocs()));
+    help->addAction(tr("&About VTripod..."), this, SLOT(onAbout()));
+
+    // Add the top-level menus
+    bar->addMenu(file);
+    bar->addMenu(help);
+
+    setMenuBar(bar);
+}
+
+void MainWindow::onOpen()
+{
+    //...
+}
+
+void MainWindow::onRender()
+{
+    //...
+}
+
+void MainWindow::onOnlineDocs()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/nathan-osman/vtripod"));
+}
+
+void MainWindow::onAbout()
+{
+    QMessageBox::information(this, tr("About VTripod"), tr("Copyright 2016 - Nathan Osman"));
+}

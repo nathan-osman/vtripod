@@ -22,21 +22,9 @@
  * IN THE SOFTWARE.
  */
 
-#include <QApplication>
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include "config.h"
-#include "mainwindow.h"
+#define VERSION "${VERSION}"
 
-int main(int argc, char **argv)
-{
-    QApplication app(argc, argv);
-    app.setApplicationDisplayName("VTripod");
-    app.setApplicationVersion(VERSION);
-    app.setOrganizationDomain("nathanosman.com");
-    app.setOrganizationName("Nathan Osman");
-
-    MainWindow win;
-    win.show();
-
-    return app.exec();
-}
+#endif // CONFIG_H

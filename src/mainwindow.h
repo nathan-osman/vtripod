@@ -25,6 +25,29 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-//...
+#include <QAction>
+#include <QMainWindow>
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+
+    MainWindow();
+
+private slots:
+
+    void onOpen();
+    void onRender();
+    void onOnlineDocs();
+    void onAbout();
+
+private:
+
+    void initMenu();
+
+    QAction *mRender;
+};
 
 #endif // MAINWINDOW_H
