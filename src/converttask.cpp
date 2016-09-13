@@ -51,4 +51,5 @@ void ConvertTask::abort()
 {
     QMutexLocker locker(&mMutex);
     Q_UNUSED(locker)
+    mAbort = true;
 }

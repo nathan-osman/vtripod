@@ -49,16 +49,21 @@ public:
 
     /**
      * @brief Create a converter for a file
-     * @param srcFilename name of the file being read
-     * @param destFilename name of the file being written
-     * @param size dimensions of the file being written
      */
-    Converter(const QString &srcFilename, const QString &destFilename, const QSize &size);
+    Converter();
 
     /**
      * @brief Destroy the converter
      */
     virtual ~Converter();
+
+    /**
+     * @brief Perform the conversion
+     * @param srcFilename name of the file being read
+     * @param destFilename name of the file being written
+     * @param size dimensions of the file being written
+     */
+    void convert(const QString &srcFilename, const QString &destFilename, const QSize &dimensions);
 
 signals:
 
@@ -74,9 +79,9 @@ signals:
 private:
 
     QThread mThread;
-    ConvertTask mTask;
-
     QProgressDialog mDialog;
+
+    ConvertTask *mTask;
 };
 
 #endif // CONVERTER_H

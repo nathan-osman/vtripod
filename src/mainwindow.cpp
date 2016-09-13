@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QFileDialog>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -37,10 +38,12 @@
 MainWindow::MainWindow()
     : mRender(nullptr)
 {
+    connect(&mConverter, &Converter::finished, this, &MainWindow::onOpenFinished);
+
     initMenu();
 
     // Resize and center the window
-    setGeometry(0, 0, 600, 400);
+    resize(600, 400);
     setGeometry(
         QStyle::alignedRect(
             Qt::LeftToRight,
@@ -77,7 +80,19 @@ void MainWindow::initMenu()
 
 void MainWindow::onOpen()
 {
-    //...
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open File"));
+    if (!filename.isNull()) {
+        mConverter.convert(filename, mTemp.fileName(), QSize(720, 480));
+    }
+}
+
+void MainWindow::onOpenFinished(const QString &error)
+{
+    if (error.isNull()) {
+        QMessageBox::information(this, tr("Information"), tr("Conversion completed!"));
+    } else {
+        QMessageBox::critical(this, tr("Error"), error);
+    }
 }
 
 void MainWindow::onRender()

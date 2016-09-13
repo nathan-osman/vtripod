@@ -27,6 +27,9 @@
 
 #include <QAction>
 #include <QMainWindow>
+#include <QTemporaryFile>
+
+#include "converter.h"
 
 class MainWindow : public QMainWindow
 {
@@ -39,6 +42,7 @@ public:
 private slots:
 
     void onOpen();
+    void onOpenFinished(const QString &error);
     void onRender();
     void onOnlineDocs();
     void onAbout();
@@ -48,6 +52,9 @@ private:
     void initMenu();
 
     QAction *mRender;
+
+    Converter mConverter;
+    QTemporaryFile mTemp;
 };
 
 #endif // MAINWINDOW_H

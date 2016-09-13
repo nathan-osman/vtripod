@@ -24,23 +24,37 @@
 
 #include "converter.h"
 
-Converter::Converter(const QString &srcFilename, const QString &destFilename, const QSize &size)
-    : mTask(srcFilename, destFilename, size)
+Converter::Converter()
+    : mTask(nullptr)
 {
     mThread.start();
-    mTask.moveToThread(&mThread);
-
-    connect(&mTask, &ConvertTask::progress, &mDialog, &QProgressDialog::setValue);
-    connect(&mTask, &ConvertTask::finished, this, &Converter::finished);
-    connect(&mDialog, &QProgressDialog::canceled, &mTask, &ConvertTask::abort, Qt::DirectConnection);
-
-    // Start the conversion
-    QMetaObject::invokeMethod(&mTask, "run", Qt::QueuedConnection);
 }
 
 Converter::~Converter()
 {
-    mTask.abort();
+    if (mTask) {
+        mTask->abort();
+    }
+
     mThread.quit();
     mThread.wait();
+}
+
+void Converter::convert(const QString &srcFilename, const QString &destFilename, const QSize &dimensions)
+{
+    mTask = new ConvertTask(srcFilename, destFilename, dimensions);
+    mTask->moveToThread(&mThread);
+
+    connect(mTask, &ConvertTask::progress, &mDialog, &QProgressDialog::setValue);
+    connect(mTask, &ConvertTask::finished, &mDialog, &QProgressDialog::hide);
+    connect(mTask, &ConvertTask::finished, this, &Converter::finished);
+    connect(mTask, &ConvertTask::finished, mTask, [this]() {
+        mTask->deleteLater();
+        mTask = nullptr;
+    });
+    connect(&mDialog, &QProgressDialog::canceled, mTask, &ConvertTask::abort, Qt::DirectConnection);
+
+    mDialog.show();
+
+    QMetaObject::invokeMethod(mTask, "run", Qt::QueuedConnection);
 }
