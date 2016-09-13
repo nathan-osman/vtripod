@@ -25,9 +25,9 @@
 #ifndef CONVERTER_H
 #define CONVERTER_H
 
-#include <QProgressDialog>
 #include <QSize>
 #include <QThread>
+#include <QWidget>
 
 #include "converttask.h"
 
@@ -49,8 +49,9 @@ public:
 
     /**
      * @brief Create a converter for a file
+     * @param parent window used as dialog parent
      */
-    Converter();
+    explicit Converter(QWidget *parent);
 
     /**
      * @brief Destroy the converter
@@ -79,9 +80,9 @@ signals:
 private:
 
     QThread mThread;
-    QProgressDialog mDialog;
 
     ConvertTask *mTask;
+    QWidget *mParent;
 };
 
 #endif // CONVERTER_H

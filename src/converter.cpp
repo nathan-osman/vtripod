@@ -22,10 +22,13 @@
  * IN THE SOFTWARE.
  */
 
+#include <QProgressDialog>
+
 #include "converter.h"
 
-Converter::Converter()
-    : mTask(nullptr)
+Converter::Converter(QWidget *parent)
+    : mTask(nullptr),
+      mParent(parent)
 {
     mThread.start();
 }
@@ -45,16 +48,20 @@ void Converter::convert(const QString &srcFilename, const QString &destFilename,
     mTask = new ConvertTask(srcFilename, destFilename, dimensions);
     mTask->moveToThread(&mThread);
 
-    connect(mTask, &ConvertTask::progress, &mDialog, &QProgressDialog::setValue);
-    connect(mTask, &ConvertTask::finished, &mDialog, &QProgressDialog::hide);
+    QProgressDialog *dialog = new QProgressDialog(mParent);
+    dialog->setLabelText(tr("Converting video..."));
+    dialog->setMinimumDuration(0);
+    dialog->setWindowModality(Qt::WindowModal);
+
+    connect(mTask, &ConvertTask::progress, dialog, &QProgressDialog::setValue);
+    connect(mTask, &ConvertTask::finished, dialog, &QProgressDialog::hide);
     connect(mTask, &ConvertTask::finished, this, &Converter::finished);
-    connect(mTask, &ConvertTask::finished, mTask, [this]() {
+    connect(mTask, &ConvertTask::finished, mTask, [this, dialog]() {
+        dialog->deleteLater();
         mTask->deleteLater();
         mTask = nullptr;
     });
-    connect(&mDialog, &QProgressDialog::canceled, mTask, &ConvertTask::abort, Qt::DirectConnection);
-
-    mDialog.show();
+    connect(dialog, &QProgressDialog::canceled, mTask, &ConvertTask::abort, Qt::DirectConnection);
 
     QMetaObject::invokeMethod(mTask, "run", Qt::QueuedConnection);
 }

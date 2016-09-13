@@ -36,7 +36,8 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow()
-    : mRender(nullptr)
+    : mRender(nullptr),
+      mConverter(this)
 {
     connect(&mConverter, &Converter::finished, this, &MainWindow::onOpenFinished);
 

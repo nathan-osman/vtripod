@@ -44,6 +44,28 @@ void ConvertTask::run()
         return;
     }
 
+    forever {
+
+        // Check to see if the user wanted to abort the conversion
+        {
+            QMutexLocker locker(&mMutex);
+            Q_UNUSED(locker)
+
+            if (mAbort) {
+                emit finished(tr("Conversion aborted by user."));
+                return;
+            }
+        }
+
+        // Calculate file decoding progress
+        double curFrame = cap.get(CV_CAP_PROP_POS_FRAMES);
+        double totalFrames = cap.get(CV_CAP_PROP_FRAME_COUNT);
+        emit progress(totalFrames == 0.0 ? 0 : static_cast<int>(curFrame / totalFrames * 100.0));
+
+        cv::Mat frame;
+        cap >> frame;
+    }
+
     emit finished(QString());
 }
 
@@ -51,5 +73,6 @@ void ConvertTask::abort()
 {
     QMutexLocker locker(&mMutex);
     Q_UNUSED(locker)
+
     mAbort = true;
 }
