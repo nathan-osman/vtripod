@@ -33,8 +33,8 @@
  * @brief Video conversion task
  *
  * Uses OpenCV to convert a video file to a smaller "preview" resolution in
- * H.264 format (best chance for hardware acceleration). This class *cannot*
- * be reused. Create a new instance for each conversion.
+ * MJPEG format (really good at fast seeking). This class *cannot* be reused.
+ * Create a new instance for each conversion.
  */
 class ConvertTask : public QObject
 {

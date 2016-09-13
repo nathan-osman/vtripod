@@ -44,7 +44,57 @@ void ConvertTask::run()
         return;
     }
 
+    // Retrieve a few basic properties
+    double fps = cap.get(CV_CAP_PROP_FPS);
+    double width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+    double height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+    double totalFrames = cap.get(CV_CAP_PROP_FRAME_COUNT);
+
+    // Ensure that the properties are valid (prevent divide-by-zero errors)
+    if (!fps || !width || !height || !totalFrames) {
+        emit finished(tr("Invalid video properties."));
+        return;
+    }
+
+    // Calculate the appropriate size based on the aspect ratio
+    double wScale = static_cast<double>(mDimensions.width()) / width;
+    double hScale = static_cast<double>(mDimensions.height()) / height;
+    double scale = qMin(wScale, hScale);
+
+    CvSize size = {
+        static_cast<int>(width * scale),
+        static_cast<int>(height * scale)
+    };
+
+    cv::VideoWriter enc(
+        mDestFilename.toStdString(),
+        CV_FOURCC('M', 'J', 'P', 'G'),
+        fps,
+        size
+    );
+    if (!enc.isOpened()) {
+        emit finished(tr("OpenCV cannot open %1.").arg(mDestFilename));
+        return;
+    }
+
     forever {
+
+        // Decode the next frame
+        cv::Mat src;
+        if (!cap.read(src)) {
+            break;
+        }
+
+        // Resize the frame
+        cv::Mat dest;
+        cv::resize(src, dest, size);
+
+        // Encode the frame
+        enc.write(dest);
+
+        // Calculate file decoding progress
+        double curFrame = cap.get(CV_CAP_PROP_POS_FRAMES);
+        emit progress(static_cast<int>(curFrame / totalFrames * 100.0));
 
         // Check to see if the user wanted to abort the conversion
         {
@@ -56,14 +106,6 @@ void ConvertTask::run()
                 return;
             }
         }
-
-        // Calculate file decoding progress
-        double curFrame = cap.get(CV_CAP_PROP_POS_FRAMES);
-        double totalFrames = cap.get(CV_CAP_PROP_FRAME_COUNT);
-        emit progress(totalFrames == 0.0 ? 0 : static_cast<int>(curFrame / totalFrames * 100.0));
-
-        cv::Mat frame;
-        cap >> frame;
     }
 
     emit finished(QString());

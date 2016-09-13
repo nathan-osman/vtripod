@@ -49,7 +49,8 @@ void Converter::convert(const QString &srcFilename, const QString &destFilename,
     mTask->moveToThread(&mThread);
 
     QProgressDialog *dialog = new QProgressDialog(mParent);
-    dialog->setLabelText(tr("Converting video..."));
+    dialog->setAutoReset(false);
+    dialog->setLabelText(tr("Generating preview..."));
     dialog->setMinimumDuration(0);
     dialog->setWindowModality(Qt::WindowModal);
 

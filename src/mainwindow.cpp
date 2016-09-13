@@ -53,6 +53,11 @@ MainWindow::MainWindow()
             QApplication::desktop()->availableGeometry()
         )
     );
+
+    // Create the file (ensure .avi extension)
+    mTemp.setFileTemplate(mTemp.fileTemplate() + ".avi");
+    mTemp.open();
+    mTemp.close();
 }
 
 void MainWindow::initMenu()
@@ -83,7 +88,7 @@ void MainWindow::onOpen()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Open File"));
     if (!filename.isNull()) {
-        mConverter.convert(filename, mTemp.fileName(), QSize(720, 480));
+        mConverter.convert(filename, mTemp.fileName(), QSize(640, 360));
     }
 }
 
